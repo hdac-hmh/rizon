@@ -1,0 +1,11 @@
+syntax = "proto3";
+package rizonworld.rizon.nft;
+
+import "gogoproto/gogo.proto";
+import "nft/nft.proto";
+
+option go_package = "github.com/rizon-world/rizon/x/nft/types";
+
+message GenesisState {
+  repeated Collection collections = 1 [ (gogoproto.nullable) = false ];
+}

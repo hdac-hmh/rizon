@@ -99,6 +99,10 @@ import (
 	treasurytypes "github.com/rizon-world/rizon/x/treasury/types"
 
 	rizonmint "github.com/rizon-world/rizon/x/mint"
+
+	"github.com/rizon-world/rizon/x/nft"
+	nftkeeper "github.com/rizon-world/rizon/x/nft/keeper"
+	nfttypes "github.com/rizon-world/rizon/x/nft/types"
 )
 
 const appName = "RizonApp"
@@ -186,7 +190,7 @@ type RizonApp struct { // nolint: golint
 	TransferKeeper   ibctransferkeeper.Keeper
 	TokenswapKeeper  tokenswapkeeper.Keeper
 	TreasuryKeeper   treasurykeeper.Keeper
-	nftKeeper        nftkeeper.Keeper
+	NftKeeper        nftkeeper.Keeper
 
 	// make scoped keepers public for test purposes
 	ScopedIBCKeeper      capabilitykeeper.ScopedKeeper
@@ -284,7 +288,9 @@ func NewRizonApp(
 	app.TreasuryKeeper = treasurykeeper.NewKeeper(
 		appCodec, keys[treasurytypes.StoreKey], app.GetSubspace(treasurytypes.ModuleName), app.BankKeeper,
 	)
-	app.nftKeeper = nftkeeper.NewKeeper(appCodec, keys[nfttypes.StoreKey])
+	app.NftKeeper = nftkeeper.NewKeeper(
+		appCodec, keys[nfttypes.StoreKey],
+	)
 
 	// register the staking hooks
 	// NOTE: stakingKeeper above is passed by reference, so that it will contain these hooks
@@ -364,7 +370,7 @@ func NewRizonApp(
 		tokenswap.NewAppModule(appCodec, app.TokenswapKeeper, app.BankKeeper),
 		treasury.NewAppModule(appCodec, app.TreasuryKeeper, app.BankKeeper),
 		transferModule,
-		nft.NewAppModule(appCodec, app.nftKeeper, app.AccountKeeper, app.BankKeeper),
+		nft.NewAppModule(appCodec, app.NftKeeper, app.AccountKeeper, app.BankKeeper),
 	)
 
 	// During begin block slashing happens after distr.BeginBlocker so that
@@ -410,7 +416,6 @@ func NewRizonApp(
 		evidence.NewAppModule(app.EvidenceKeeper),
 		ibc.NewAppModule(app.IBCKeeper),
 		transferModule,
-		nft.NewAppModule(appCodec, app.nftKeeper, app.AccountKeeper, app.BankKeeper),
 	)
 
 	app.sm.RegisterStoreDecoders()
