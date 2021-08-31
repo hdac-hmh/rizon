@@ -94,11 +94,10 @@ import (
 	tokenswapkeeper "github.com/rizon-world/rizon/x/tokenswap/keeper"
 	tokenswaptypes "github.com/rizon-world/rizon/x/tokenswap/types"
 
+	rizonmint "github.com/rizon-world/rizon/x/mint"
 	"github.com/rizon-world/rizon/x/treasury"
 	treasurykeeper "github.com/rizon-world/rizon/x/treasury/keeper"
 	treasurytypes "github.com/rizon-world/rizon/x/treasury/types"
-
-	rizonmint "github.com/rizon-world/rizon/x/mint"
 
 	"github.com/rizon-world/rizon/x/nft"
 	nftkeeper "github.com/rizon-world/rizon/x/nft/keeper"
@@ -416,7 +415,6 @@ func NewRizonApp(
 		evidence.NewAppModule(app.EvidenceKeeper),
 		ibc.NewAppModule(app.IBCKeeper),
 		transferModule,
-		nft.NewAppModule(appCodec, app.nftKeeper, app.AccountKeeper, app.BankKeeper),
 	)
 
 	app.sm.RegisterStoreDecoders()

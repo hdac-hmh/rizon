@@ -2,6 +2,7 @@ package types
 
 import (
 	"fmt"
+
 	"regexp"
 	"strings"
 
@@ -9,7 +10,6 @@ import (
 )
 
 const (
-	DoNotModify = "[do-not-modify]"
 	MinDenomLen = 3
 	MaxDenomLen = 64
 
@@ -37,9 +37,7 @@ func ValidateDenomID(denomID string) error {
 	if len(denomID) < MinDenomLen || len(denomID) > MaxDenomLen {
 		return sdkerrors.Wrapf(ErrInvalidDenom, "the length of denom(%s) only accepts value [%d, %d]", denomID, MinDenomLen, MaxDenomLen)
 	}
-	if !IsBeginWithAlpha(denomID) || !IsAlphaNumeric(denomID) {
-		return sdkerrors.Wrapf(ErrInvalidDenom, "the denom(%s) only accepts alphanumeric characters, and begin with an english letter", denomID)
-	}
+
 	return ValidateKeywords(denomID)
 }
 
@@ -57,14 +55,9 @@ func ValidateTokenID(tokenID string) error {
 // ValidateTokenURI verify that the tokenURI is legal
 func ValidateTokenURI(tokenURI string) error {
 	if len(tokenURI) > MaxTokenURILen {
-		return sdkerrors.Wrapf(ErrInvalidTokenURI, "the length of nft uri(%s) only accepts value [0, %d]", tokenURI, MaxTokenURILen)
+		return sdkerrors.Wrapf(ErrInvalidTokenURI, "the length of the nft uri(%s) only accepts value [0, %d]", tokenURI, MaxTokenURILen)
 	}
 	return nil
-}
-
-// Modified returns whether the field is modified
-func Modified(target string) bool {
-	return target != DoNotModify
 }
 
 // ValidateKeywords checks if the given denomId begins with `DenomKeywords`
@@ -73,4 +66,5 @@ func ValidateKeywords(denomId string) error {
 		return sdkerrors.Wrapf(ErrInvalidDenom, "invalid denomId: %s, can not begin with keyword: (%s)", denomId, keywords)
 	}
 	return nil
+
 }

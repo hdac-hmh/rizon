@@ -1,9 +1,6 @@
 package types
 
 import (
-	"bytes"
-	"errors"
-
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
@@ -31,32 +28,7 @@ var (
 	delimiter = []byte("/")
 )
 
-// SplitKeyOwner return the address,denom,id from the key of stored owner
-func SplitKeyOwner(key []byte) (address sdk.AccAddress, denomID, tokenID string, err error) {
-	key = key[len(PrefixOwners)+len(delimiter):]
-	keys := bytes.Split(key, delimiter)
-	if len(keys) != 3 {
-		return address, denomID, tokenID, errors.New("wrong KeyOwner")
-	}
-
-	address, _ = sdk.AccAddressFromBech32(string(keys[0]))
-	denomID = string(keys[1])
-	tokenID = string(keys[2])
-	return
-}
-
-func SplitKeyDenom(key []byte) (denomID, tokenID string, err error) {
-	keys := bytes.Split(key, delimiter)
-	if len(keys) != 2 {
-		return denomID, tokenID, errors.New("wrong KeyOwner")
-	}
-
-	denomID = string(keys[0])
-	tokenID = string(keys[1])
-	return
-}
-
-// KeyOwner gets the key of a collection owned by an account address
+// KeyOwner get the key of a collection owned by an account address
 func KeyOwner(address sdk.AccAddress, denomID, tokenID string) []byte {
 	key := append(PrefixOwners, delimiter...)
 	if address != nil {
