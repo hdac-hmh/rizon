@@ -3,7 +3,10 @@ package keeper
 import (
 	"context"
 
+	"github.com/cosmos/cosmos-sdk/store/prefix"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/cosmos/cosmos-sdk/types/query"
 	"github.com/rizon-world/rizon/x/nft/types"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
@@ -43,8 +46,26 @@ func (k Keeper) Denom(c context.Context, request *types.QueryDenomRequest) (*typ
 }
 
 // Denoms queries all the denoms
-func (k Keeper) Denoms(c context.Context, request *types.QueryDenomsRequest) (*types.QueryDenomsResponse, error) {
-	return &types.QueryDenomsResponse{}, nil
+func (k Keeper) Denoms(c context.Context, req *types.QueryDenomsRequest) (*types.QueryDenomsResponse, error) {
+	ctx := sdk.UnwrapSDKContext(c)
+
+	var denoms []types.Denom
+	store := ctx.KVStore(k.storeKey)
+	denomStore := prefix.NewStore(store, types.KeyDenomID(""))
+	pageRes, err := query.Paginate(denomStore, req.Pagination, func(key []byte, value []byte) error {
+		var denom types.Denom
+		k.cdc.MustUnmarshalBinaryBare(value, &denom)
+		denoms = append(denoms, denom)
+		return nil
+	})
+	if err != nil {
+		return nil, status.Errorf(codes.InvalidArgument, "paginate: %v", err)
+	}
+
+	return &types.QueryDenomsResponse{
+		Denoms:     denoms,
+		Pagination: pageRes,
+	}, nil
 }
 
 // NFT queries the NFT for the given denom and token ID
