@@ -71,10 +71,6 @@ func GetCmdQueryDenom() *cobra.Command {
 				return err
 			}
 
-			if err := types.ValidateDenomID(args[0]); err != nil {
-				return err
-			}
-
 			queryClient := types.NewQueryClient(clientCtx)
 			resp, err := queryClient.Denom(
 				context.Background(),
