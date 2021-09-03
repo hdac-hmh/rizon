@@ -6,6 +6,24 @@ import (
 	"github.com/rizon-world/rizon/x/nft/types"
 )
 
+// SetCollection saves all NFTs and returns an error if there already exists
+func (k Keeper) SetCollection(ctx sdk.Context, collection types.Collection) error {
+	for _, nft := range collection.NFTs {
+		if err := k.MintNFT(
+			ctx,
+			collection.Denom.Id,
+			nft.GetID(),
+			nft.GetName(),
+			nft.GetURI(),
+			nft.GetData(),
+			nft.GetOwner(),
+		); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
 // GetCollections returns all the collections
 func (k Keeper) GetCollections(ctx sdk.Context) (cs []types.Collection) {
 	for _, denom := range k.GetDenoms(ctx) {
@@ -34,4 +52,13 @@ func (k Keeper) GetTotalSupplyOfOwner(ctx sdk.Context, id string, owner sdk.AccA
 		supply++
 	}
 	return supply
+}
+
+func (k Keeper) increaseSupply(ctx sdk.Context, denomID string) {
+	supply := k.GetTotalSupply(ctx, denomID)
+	supply++
+
+	store := ctx.KVStore(k.storeKey)
+	bz := types.MustMarshalSupply(k.cdc, supply)
+	store.Set(types.KeyCollection(denomID), bz)
 }

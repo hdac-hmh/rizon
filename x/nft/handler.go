@@ -19,6 +19,10 @@ func NewHandler(k keeper.Keeper) sdk.Handler {
 			res, err := msgServer.IssueDenom(sdk.WrapSDKContext(ctx), msg)
 			return sdk.WrapServiceResult(ctx, res, err)
 
+		case *types.MsgMintNFT:
+			res, err := msgServer.MintNFT(sdk.WrapSDKContext(ctx), msg)
+			return sdk.WrapServiceResult(ctx, res, err)
+
 		default:
 			return nil, sdkerrors.Wrapf(sdkerrors.ErrUnknownRequest, "unrecognized nft message type: %T", msg)
 		}
