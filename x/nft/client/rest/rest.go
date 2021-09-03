@@ -14,6 +14,7 @@ func RegisterHandlers(cliCtx client.Context, r *mux.Router, queryRoute string) {
 
 const (
 	RestParamDenomID = "denom-id"
+	RestParamTokenID = "token-id"
 	RestParamOwner   = "owner"
 )
 
@@ -26,4 +27,15 @@ type issueDenomReq struct {
 	Symbol           string       `json:"symbol"`
 	MintRestricted   bool         `json:"mint_restricted"`
 	UpdateRestricted bool         `json:"update_restricted"`
+}
+
+type mintNFTReq struct {
+	BaseReq   rest.BaseReq `json:"base_req"`
+	Owner     string       `json:"owner"`
+	Recipient string       `json:"recipient"`
+	DenomID   string       `json:"denom_id"`
+	ID        string       `json:"id"`
+	Name      string       `json:"name"`
+	URI       string       `json:"uri"`
+	Data      string       `json:"data"`
 }

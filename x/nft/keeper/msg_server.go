@@ -49,11 +49,40 @@ func (m msgServer) IssueDenom(goCtx context.Context, msg *types.MsgIssueDenom) (
 	return &types.MsgIssueDenomResponse{}, nil
 }
 
-//
-//func (m msgServer) MintNFT(goCtx context.Context, msg *types.MsgMintNFT) (*types.MsgMintNFTResponse, error) {
-//	return &types.MsgMintNFTResponse{}, nil
-//}
-//
+func (m msgServer) MintNFT(goCtx context.Context, msg *types.MsgMintNFT) (*types.MsgMintNFTResponse, error) {
+	recipient, err := sdk.AccAddressFromBech32(msg.Recipient)
+	if err != nil {
+		return nil, err
+	}
+
+	ctx := sdk.UnwrapSDKContext(goCtx)
+	if err := m.Keeper.MintNFT(ctx, msg.DenomId, msg.Id,
+		msg.Name,
+		msg.URI,
+		msg.Data,
+		recipient,
+	); err != nil {
+		return nil, err
+	}
+
+	ctx.EventManager().EmitEvents(sdk.Events{
+		sdk.NewEvent(
+			types.EventTypeMintNFT,
+			sdk.NewAttribute(types.AttributeKeyTokenID, msg.Id),
+			sdk.NewAttribute(types.AttributeKeyDenomID, msg.DenomId),
+			sdk.NewAttribute(types.AttributeKeyTokenURI, msg.URI),
+			sdk.NewAttribute(types.AttributeKeyRecipient, msg.Recipient),
+		),
+		sdk.NewEvent(
+			sdk.EventTypeMessage,
+			sdk.NewAttribute(sdk.AttributeKeyModule, types.AttributeValueCategory),
+			sdk.NewAttribute(sdk.AttributeKeySender, msg.Sender),
+		),
+	})
+
+	return &types.MsgMintNFTResponse{}, nil
+}
+
 //func (m msgServer) EditNFT(goCtx context.Context, msg *types.MsgEditNFT) (*types.MsgEditNFTResponse, error) {
 //	return &types.MsgEditNFTResponse{}, nil
 //}

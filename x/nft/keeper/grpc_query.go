@@ -6,6 +6,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/store/prefix"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/cosmos/cosmos-sdk/types/query"
 	"github.com/rizon-world/rizon/x/nft/types"
 	"google.golang.org/grpc/codes"
@@ -42,7 +43,14 @@ func (k Keeper) Collection(c context.Context, request *types.QueryCollectionRequ
 
 // Denom queries the definition of a given denom
 func (k Keeper) Denom(c context.Context, request *types.QueryDenomRequest) (*types.QueryDenomResponse, error) {
-	return &types.QueryDenomResponse{}, nil
+	ctx := sdk.UnwrapSDKContext(c)
+
+	denomObject, found := k.GetDenom(ctx, request.DenomId)
+	if !found {
+		return nil, sdkerrors.Wrapf(types.ErrInvalidDenom, "denom ID %s not exists", request.DenomId)
+	}
+
+	return &types.QueryDenomResponse{Denom: &denomObject}, nil
 }
 
 // Denoms queries all the denoms
@@ -70,5 +78,17 @@ func (k Keeper) Denoms(c context.Context, req *types.QueryDenomsRequest) (*types
 
 // NFT queries the NFT for the given denom and token ID
 func (k Keeper) NFT(c context.Context, request *types.QueryNFTRequest) (*types.QueryNFTResponse, error) {
-	return &types.QueryNFTResponse{}, nil
+	ctx := sdk.UnwrapSDKContext(c)
+
+	nft, err := k.GetNFT(ctx, request.DenomId, request.TokenId)
+	if err != nil {
+		return nil, sdkerrors.Wrapf(types.ErrUnknownNFT, "invalid NFT %s from collection %s", request.TokenId, request.DenomId)
+	}
+
+	baseNFT, ok := nft.(types.BaseNFT)
+	if !ok {
+		return nil, sdkerrors.Wrapf(types.ErrUnknownNFT, "invalid type NFT %s from collection %s", request.TokenId, request.DenomId)
+	}
+
+	return &types.QueryNFTResponse{NFT: &baseNFT}, nil
 }
