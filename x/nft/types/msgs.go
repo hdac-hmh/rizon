@@ -67,26 +67,57 @@ func (msg MsgIssueDenom) GetSigners() []sdk.AccAddress {
 	return []sdk.AccAddress{from}
 }
 
-//// NewMsgTransferNFT is a constructor function for MsgSetName
-//func NewMsgTransferNFT (
-//	tokenID, denomID, tokenName, tokenURI, tokenData, sender, recipient string,
-//	) *MsgTransferNFT {
-//	return &MsgTransferNFT {
-//		Id:			tokenID,
-//		DenomId:	denomID,
-//		Name:		tokenName,
-//		URI:		tokenURI,
-//		Data:		tokenData,
-//		Sender:		sender,
-//		Recipient:	recipient,
-//	}
-//}
-//
-//func (msg MsgTransferNFT) Route() string {}
-//func (msg MsgTransferNFT) Type() string {}
-//func (msg MsgTransferNFT) ValidateBasic() error {}
-//func (msg MsgTransferNFT) GetSignBytes() []byte {}
-//func (msg MsgTransferNFT) GetSigners() []sdk.AccAddress {}
+// NewMsgTransferNFT is a constructor function for MsgSetName
+func NewMsgTransferNFT(
+	tokenID, denomID, tokenName, tokenURI, tokenData, sender, recipient string,
+) *MsgTransferNFT {
+	return &MsgTransferNFT{
+		Id:        tokenID,
+		DenomId:   denomID,
+		Name:      tokenName,
+		URI:       tokenURI,
+		Data:      tokenData,
+		Sender:    sender,
+		Recipient: recipient,
+	}
+}
+
+// Route Implements Msg
+func (msg MsgTransferNFT) Route() string { return RouterKey }
+
+// Type Implements Msg
+func (msg MsgTransferNFT) Type() string { return TypeMsgTransferNFT }
+
+// ValidateBasic Implements Msg
+func (msg MsgTransferNFT) ValidateBasic() error {
+	if err := ValidateDenomID(msg.DenomId); err != nil {
+		return err
+	}
+
+	if _, err := sdk.AccAddressFromBech32(msg.Sender); err != nil {
+		return sdkerrors.Wrapf(sdkerrors.ErrInvalidAddress, "invalid sender address (%s)", err)
+	}
+
+	if _, err := sdk.AccAddressFromBech32(msg.Recipient); err != nil {
+		return sdkerrors.Wrapf(sdkerrors.ErrInvalidAddress, "invalid recipient address (%s)", err)
+	}
+	return ValidateTokenID(msg.Id)
+}
+
+// GetSignBytes Implements Msg
+func (msg MsgTransferNFT) GetSignBytes() []byte {
+	bz := ModuleCdc.MustMarshalJSON(&msg)
+	return sdk.MustSortJSON(bz)
+}
+
+// GetSigners Implements Msg
+func (msg MsgTransferNFT) GetSigners() []sdk.AccAddress {
+	from, err := sdk.AccAddressFromBech32(msg.Sender)
+	if err != nil {
+		panic(err)
+	}
+	return []sdk.AccAddress{from}
+}
 
 // NewMsgEditNFT is a constructor function for MsgSetName
 func NewMsgEditNFT(

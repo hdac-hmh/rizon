@@ -30,6 +30,7 @@ func NewTxCmd() *cobra.Command {
 		GetCmdIssueDenom(),
 		GetCmdMintNFT(),
 		GetCmdEditNFT(),
+		GetCmdTransferNFT(),
 	)
 
 	return txCmd
@@ -227,6 +228,63 @@ func GetCmdEditNFT() *cobra.Command {
 		},
 	}
 	cmd.Flags().AddFlagSet(FsEditNFT)
+	flags.AddTxFlagsToCmd(cmd)
+
+	return cmd
+}
+
+// GetCmdTransferNFT is the CLI command for sending a TransferNFT transaction
+func GetCmdTransferNFT() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:  "transfer [recipient] [denom-id] [nft-id]",
+		Long: "Transfer an NFT to a recipient.",
+		Example: fmt.Sprintf(
+			"$ %s nft transfer <recipient> <denom-id> <nft-id> "+
+				"--uri=<uri> "+
+				"--from=<key-name> "+
+				"--chain-id=<chain-id> "+
+				"--fees=<fee>",
+			version.AppName,
+		),
+		Args: cobra.ExactArgs(3),
+		RunE: func(cmd *cobra.Command, args []string) error {
+			clientCtx, err := client.GetClientTxContext(cmd)
+			if err != nil {
+				return err
+			}
+
+			if _, err := sdk.AccAddressFromBech32(args[0]); err != nil {
+				return err
+			}
+
+			tokenName, err := cmd.Flags().GetString(FlagTokenName)
+			if err != nil {
+				return err
+			}
+			tokenURI, err := cmd.Flags().GetString(FlagTokenURI)
+			if err != nil {
+				return err
+			}
+			tokenData, err := cmd.Flags().GetString(FlagTokenData)
+			if err != nil {
+				return err
+			}
+			msg := types.NewMsgTransferNFT(
+				args[2],
+				args[1],
+				tokenName,
+				tokenURI,
+				tokenData,
+				clientCtx.GetFromAddress().String(),
+				args[0],
+			)
+			if err := msg.ValidateBasic(); err != nil {
+				return err
+			}
+			return tx.GenerateOrBroadcastTxCLI(clientCtx, cmd.Flags(), msg)
+		},
+	}
+	cmd.Flags().AddFlagSet(FsTransferNFT)
 	flags.AddTxFlagsToCmd(cmd)
 
 	return cmd

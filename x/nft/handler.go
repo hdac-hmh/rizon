@@ -23,6 +23,10 @@ func NewHandler(k keeper.Keeper) sdk.Handler {
 			res, err := msgServer.MintNFT(sdk.WrapSDKContext(ctx), msg)
 			return sdk.WrapServiceResult(ctx, res, err)
 
+		case *types.MsgTransferNFT:
+			res, err := msgServer.TransferNFT(sdk.WrapSDKContext(ctx), msg)
+			return sdk.WrapServiceResult(ctx, res, err)
+
 		case *types.MsgEditNFT:
 			res, err := msgServer.EditNFT(sdk.WrapSDKContext(ctx), msg)
 			return sdk.WrapServiceResult(ctx, res, err)
