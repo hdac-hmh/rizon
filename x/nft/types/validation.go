@@ -2,11 +2,14 @@ package types
 
 import (
 	"fmt"
-
 	"regexp"
 	"strings"
 
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
+
+	// TODO:
+	// pickup from irismod token module
+	"github.com/irisnet/irismod/modules/token/types"
 )
 
 const (
@@ -60,11 +63,15 @@ func ValidateTokenURI(tokenURI string) error {
 	return nil
 }
 
+// Modified returns whether the field is modified
+func Modified(target string) bool {
+	return target != types.DoNotModify
+}
+
 // ValidateKeywords checks if the given denomId begins with `DenomKeywords`
 func ValidateKeywords(denomId string) error {
 	if regexpKeyword(denomId) {
 		return sdkerrors.Wrapf(ErrInvalidDenom, "invalid denomId: %s, can not begin with keyword: (%s)", denomId, keywords)
 	}
 	return nil
-
 }

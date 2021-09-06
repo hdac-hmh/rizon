@@ -14,8 +14,8 @@ service Msg {
   // MintNFT defines a method for mint a new nft
   rpc MintNFT(MsgMintNFT) returns (MsgMintNFTResponse);
 
-//  // RefundHTLC defines a method for editing a nft.
-//  rpc EditNFT(MsgEditNFT) returns (MsgEditNFTResponse);
+  // RefundHTLC defines a method for editing a nft.
+  rpc EditNFT(MsgEditNFT) returns (MsgEditNFTResponse);
 //
 //  // TransferNFT defines a method for transferring a nft.
 //  rpc TransferNFT(MsgTransferNFT) returns (MsgTransferNFTResponse);
@@ -58,22 +58,22 @@ message MsgIssueDenomResponse {}
 //
 //// MsgTransferNFTResponse defines the Msg/TransferNFT response type.
 //message MsgTransferNFTResponse {}
-//
-//// MsgEditNFT defines an SDK message for editing a nft.
-//message MsgEditNFT {
-//  option (gogoproto.equal) = true;
-//
-//  string id = 1;
-//  string denom_id = 2 [ (gogoproto.moretags) = "yaml:\"denom_id\"" ];
-//  string name = 3;
-//  string uri = 4 [ (gogoproto.customname) = "URI" ];
-//  string data = 5;
-//  string sender = 6;
-//}
-//
-//// MsgEditNFTResponse defines the Msg/EditNFT response type.
-//message MsgEditNFTResponse {}
-//
+
+// MsgEditNFT defines an SDK message for editing a nft.
+message MsgEditNFT {
+  option (gogoproto.equal) = true;
+
+  string id = 1;
+  string denom_id = 2 [ (gogoproto.moretags) = "yaml:\"denom_id\"" ];
+  string name = 3;
+  string uri = 4 [ (gogoproto.customname) = "URI" ];
+  string data = 5;
+  string sender = 6;
+}
+
+// MsgEditNFTResponse defines the Msg/EditNFT response type.
+message MsgEditNFTResponse {}
+
 // MsgMintNFT defines an SDK message for creating a new NFT.
 message MsgMintNFT {
   option (gogoproto.equal) = true;

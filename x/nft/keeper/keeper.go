@@ -18,8 +18,7 @@ type Keeper struct {
 func NewKeeper(cdc codec.Marshaler, storeKey sdk.StoreKey) Keeper {
 	return Keeper{
 		storeKey: storeKey,
-
-		cdc: cdc,
+		cdc:      cdc,
 	}
 }
 
@@ -62,6 +61,44 @@ func (k Keeper) MintNFT(
 	)
 	k.setOwner(ctx, denomID, tokenID, owner)
 	k.increaseSupply(ctx, denomID)
+
+	return nil
+}
+
+// EditNFT updates an already existing NFT
+func (k Keeper) EditNFT(
+	ctx sdk.Context, denomID, tokenID, tokenNm,
+	tokenURI, tokenData string, owner sdk.AccAddress,
+) error {
+	denom, found := k.GetDenom(ctx, denomID)
+	if !found {
+		return sdkerrors.Wrapf(types.ErrInvalidDenom, "denom ID %s not exits", denomID)
+	}
+
+	if denom.UpdateRestricted {
+		// if true, nobody can update the NFT under this denom
+		return sdkerrors.Wrapf(sdkerrors.ErrUnauthorized, "nobody can update the NFT under this denom %s", denom.Id)
+	}
+
+	// jst the owner of NFT can edit
+	nft, err := k.Authorize(ctx, denomID, tokenID, owner)
+	if err != nil {
+		return err
+	}
+
+	if types.Modified(tokenNm) {
+		nft.Name = tokenNm
+	}
+
+	if types.Modified(tokenURI) {
+		nft.URI = tokenURI
+	}
+
+	if types.Modified(tokenData) {
+		nft.Data = tokenData
+	}
+
+	k.setNFT(ctx, denomID, nft)
 
 	return nil
 }
