@@ -47,6 +47,15 @@ do_edit()
   echo "y" | rizond tx nft edit $denom_id $nft_id --uri=$uri --from=my_key --chain-id=my_testnet --fees=10stake --keyring-backend test
 }
 
+do_transfer()
+{
+  denom_id=$1
+  nft_id=$2
+  recipient=$3
+  sender=$4
+  echo "y" | rizond tx nft transfer $recipient $denom_id $nft_id --fees=10stake --from=$sender --chain-id=my_testnet --keyring-backend test
+}
+
 do_test()
 {
 	cmd=$1
@@ -62,6 +71,8 @@ do_test()
     do_qtoken $2 $3
   elif [ $cmd == "edit" ]; then
     do_edit $2 $3 $4
+  elif [ $cmd == "transfer" ]; then
+    do_transfer $2 $3 $4 $5
   else
     echo "Unknown Command $cmd"
 	fi
@@ -74,6 +85,7 @@ if [ $# -le 1 ]; then
 	echo "Usage: $0 mint [denom-id] [nft-id]"
 	echo "Usage: $0 qtoken [denom-id] [nft-id]"
 	echo "Usage: $0 edit [denom-id] [nft-id] [uri]"
+	echo "Usage: $0 transfer [denom-id] [nft-id] [recipient] [sender]"
 	exit -1
 elif [ $# -eq 2 ]; then
   do_test $1 $2
@@ -81,4 +93,6 @@ elif [ $# -eq 3 ]; then
   do_test $1 $2 $3
 elif [ $# -eq 4 ]; then
   do_test $1 $2 $3 $4
+elif [ $# -eq 5 ]; then
+  do_test $1 $2 $3 $4 $5
 fi
