@@ -19,9 +19,10 @@ const (
 )
 
 var (
-	FsIssueDenom = flag.NewFlagSet("", flag.ContinueOnError)
-	FsMintNFT    = flag.NewFlagSet("", flag.ContinueOnError)
-	FsEditNFT    = flag.NewFlagSet("", flag.ContinueOnError)
+	FsIssueDenom  = flag.NewFlagSet("", flag.ContinueOnError)
+	FsMintNFT     = flag.NewFlagSet("", flag.ContinueOnError)
+	FsEditNFT     = flag.NewFlagSet("", flag.ContinueOnError)
+	FsTransferNFT = flag.NewFlagSet("", flag.ContinueOnError)
 )
 
 func init() {
@@ -39,4 +40,8 @@ func init() {
 	FsEditNFT.String(FlagTokenURI, "[do-not-modify]", "URI for the supplemental off-chain token data (should return a JSON object)")
 	FsEditNFT.String(FlagTokenData, "[do-not-modify]", "The token data of the nft")
 	FsEditNFT.String(FlagTokenName, "[do-not-modify]", "The name of the nft")
+
+	FsTransferNFT.String(FlagTokenURI, "[do-not-modify]", "URI for the supplemental off-chain token data (should return a JSON object)")
+	FsTransferNFT.String(FlagTokenData, "[do-not-modify]", "The token data of the nft")
+	FsTransferNFT.String(FlagTokenName, "[do-not-modify]", "The name of the nft")
 }

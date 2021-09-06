@@ -47,3 +47,12 @@ type editNFTReq struct {
 	URI     string       `json:"uri"`
 	Data    string       `json:"data"`
 }
+
+type transferNFTReq struct {
+	BaseReq   rest.BaseReq `json:"base_req"`
+	Owner     string       `json:"owner"`
+	Recipient string       `json:"recipient"`
+	Name      string       `json:"name"`
+	URI       string       `json:"uri"`
+	Data      string       `json:"data"`
+}

@@ -102,3 +102,39 @@ func (k Keeper) EditNFT(
 
 	return nil
 }
+
+// TransferOwner transfers the ownership of the given NFT to the new owner
+func (k Keeper) TransferOwner(
+	ctx sdk.Context, denomID, tokenID, tokenNm, tokenURI,
+	tokenData string, srcOwner, dstOwner sdk.AccAddress,
+) error {
+	denom, found := k.GetDenom(ctx, denomID)
+	if !found {
+		return sdkerrors.Wrapf(types.ErrInvalidDenom, "denom ID %s not exits", denomID)
+	}
+
+	nft, err := k.Authorize(ctx, denomID, tokenID, srcOwner)
+	if err != nil {
+		return err
+	}
+
+	nft.Owner = dstOwner.String()
+
+	if denom.UpdateRestricted && (types.Modified(tokenNm) || types.Modified(tokenURI) || types.Modified(tokenData)) {
+		return sdkerrors.Wrapf(sdkerrors.ErrUnauthorized, "Is is restricted to update NFT under this denom %s", denom.Id)
+	}
+
+	if types.Modified(tokenNm) {
+		nft.Name = tokenNm
+	}
+	if types.Modified(tokenURI) {
+		nft.URI = tokenURI
+	}
+	if types.Modified(tokenData) {
+		nft.Data = tokenData
+	}
+
+	k.setNFT(ctx, denomID, nft)
+	k.swapOwner(ctx, denomID, tokenID, srcOwner, dstOwner)
+	return nil
+}
