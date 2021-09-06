@@ -3,7 +3,8 @@
 do_issuedenom()
 {
   denom_id=$1
-	echo "y" | rizond tx nft issue $denom_id --from=my_key --name=game --symbol="https://gblobscdn.gitbook.com/spaces%2F-MaSOXNsWsuvtyz9G2Xu%2Favatar-1623141242009.png\?alt\=media" --mint-restricted=true --update-restricted=true --schema="https://lh3.googleusercontent.com/8yUPxXmB49iPZDrnv2tuclkh_Ea19wULbtCuTQvY0Jg4kXiyDa2xeh7RscmC42nFeirqpzL4fxeJQ7N_bk8qd5s2cpa7isErKl5bVw\=w600" --chain-id=my_testnet --fees=10stake --keyring-backend test
+  update_block=$2
+	echo "y" | rizond tx nft issue $denom_id --from=my_key --name=game --symbol="https://gblobscdn.gitbook.com/spaces%2F-MaSOXNsWsuvtyz9G2Xu%2Favatar-1623141242009.png\?alt\=media" --mint-restricted=true --update-restricted=$update_block --schema="https://lh3.googleusercontent.com/8yUPxXmB49iPZDrnv2tuclkh_Ea19wULbtCuTQvY0Jg4kXiyDa2xeh7RscmC42nFeirqpzL4fxeJQ7N_bk8qd5s2cpa7isErKl5bVw\=w600" --chain-id=my_testnet --fees=10stake --keyring-backend test
 }
 
 do_qtx()
@@ -38,11 +39,19 @@ do_qtoken()
   rizond q nft token $denom_id $nft_id
 }
 
+do_edit()
+{
+  denom_id=$1
+  nft_id=$2
+  uri=$3
+  echo "y" | rizond tx nft edit $denom_id $nft_id --uri=$uri --from=my_key --chain-id=my_testnet --fees=10stake --keyring-backend test
+}
+
 do_test()
 {
 	cmd=$1
 	if [ $cmd == "issuedenom" ]; then
-		do_issuedenom $2
+		do_issuedenom $2 $3
 	elif [ $cmd == "qtx" ]; then
 		do_qtx $2
   elif [ $cmd == "qdenom" ]; then
@@ -51,20 +60,25 @@ do_test()
     do_mint $2 $3
   elif [ $cmd == "qtoken" ]; then
     do_qtoken $2 $3
+  elif [ $cmd == "edit" ]; then
+    do_edit $2 $3 $4
   else
     echo "Unknown Command $cmd"
 	fi
 }
 
 if [ $# -le 1 ]; then
-	echo "Usage: $0 issuedenom [denom-id]"
+	echo "Usage: $0 issuedenom [denom-id] [updateblock=true or false]"
 	echo "Usage: $0 qtx [txhash]"
 	echo "Usage: $0 qdenom [denom-id | all]"
 	echo "Usage: $0 mint [denom-id] [nft-id]"
 	echo "Usage: $0 qtoken [denom-id] [nft-id]"
+	echo "Usage: $0 edit [denom-id] [nft-id] [uri]"
 	exit -1
 elif [ $# -eq 2 ]; then
   do_test $1 $2
 elif [ $# -eq 3 ]; then
   do_test $1 $2 $3
+elif [ $# -eq 4 ]; then
+  do_test $1 $2 $3 $4
 fi
