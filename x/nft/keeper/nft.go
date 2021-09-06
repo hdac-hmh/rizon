@@ -37,6 +37,21 @@ func (k Keeper) GetNFTs(ctx sdk.Context, denom string) (nfts []exported.NFT) {
 	return nfts
 }
 
+// Authorize checks if the sender is the owner of the given NFT
+// Return the NFT if true, an error otherwise
+func (k Keeper) Authorize(ctx sdk.Context, denomID, tokenID string, owner sdk.AccAddress) (types.BaseNFT, error) {
+	nft, err := k.GetNFT(ctx, denomID, tokenID)
+	if err != nil {
+		return types.BaseNFT{}, err
+	}
+
+	if !owner.Equals(nft.GetOwner()) {
+		return types.BaseNFT{}, sdkerrors.Wrap(types.ErrUnauthorized, owner.String())
+	}
+
+	return nft.(types.BaseNFT), nil
+}
+
 // HasNFT checks if the specified NFT exists
 func (k Keeper) HasNFT(ctx sdk.Context, denomID, tokenID string) bool {
 	store := ctx.KVStore(k.storeKey)

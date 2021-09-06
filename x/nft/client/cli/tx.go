@@ -2,14 +2,16 @@ package cli
 
 import (
 	"fmt"
+	"io/ioutil"
+	"strings"
+
+	"github.com/spf13/cobra"
+
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/flags"
 	"github.com/cosmos/cosmos-sdk/client/tx"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/version"
-	"github.com/spf13/cobra"
-	"io/ioutil"
-	"strings"
 
 	"github.com/rizon-world/rizon/x/nft/types"
 )
@@ -17,16 +19,17 @@ import (
 // NewTxCmd returns the transaction commands for this module
 func NewTxCmd() *cobra.Command {
 	txCmd := &cobra.Command{
-		Use:						types.ModuleName,
-		Short:						"NFT transactions subcommands",
-		DisableFlagParsing: 		true,
+		Use:                        types.ModuleName,
+		Short:                      "NFT transactions subcommands",
+		DisableFlagParsing:         true,
 		SuggestionsMinimumDistance: 2,
-		RunE:						client.ValidateCmd,
+		RunE:                       client.ValidateCmd,
 	}
 
 	txCmd.AddCommand(
 		GetCmdIssueDenom(),
 		GetCmdMintNFT(),
+		GetCmdEditNFT(),
 	)
 
 	return txCmd
@@ -108,7 +111,7 @@ func GetCmdIssueDenom() *cobra.Command {
 func GetCmdMintNFT() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:  "mint [denom-id] [nft-id]",
-		Long: "Mint an NFT and set teh owner to the recipient.",
+		Long: "Mint an NFT and set the owner to the recipient.",
 		Example: fmt.Sprintf(
 			"$ %s tx nft mint <denom-id> <nft-id> "+
 				"--uri=<uri> "+
@@ -116,8 +119,8 @@ func GetCmdMintNFT() *cobra.Command {
 				"--from=<key-name> "+
 				"--chain-id=<chain-id> "+
 				"--fees=<fee>",
-				version.AppName,
-			),
+			version.AppName,
+		),
 		Args: cobra.ExactArgs(2),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			clientCtx, err := client.GetClientTxContext(cmd)
@@ -170,6 +173,60 @@ func GetCmdMintNFT() *cobra.Command {
 		},
 	}
 	cmd.Flags().AddFlagSet(FsMintNFT)
+	flags.AddTxFlagsToCmd(cmd)
+
+	return cmd
+}
+
+// GetCmdEditNFT is the CLI command for sending an MsgEditNFT transaction
+func GetCmdEditNFT() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:  "edit [denom-id] [nft-id]",
+		Long: "Edit the token data of an NFT.",
+		Example: fmt.Sprintf(
+			"$ %s tx nft edit <denom-id> <nft-id> "+
+				"--uri=<uri> "+
+				"--from=<key-name> "+
+				"--chain-id=<chain-id> "+
+				"--fees=<fee>",
+			version.AppName,
+		),
+		Args: cobra.ExactArgs(2),
+		RunE: func(cmd *cobra.Command, args []string) error {
+			clientCtx, err := client.GetClientTxContext(cmd)
+			if err != nil {
+				return err
+			}
+
+			tokenName, err := cmd.Flags().GetString(FlagTokenName)
+			if err != nil {
+				return err
+			}
+			tokenURI, err := cmd.Flags().GetString(FlagTokenURI)
+			if err != nil {
+				return err
+			}
+			tokenData, err := cmd.Flags().GetString(FlagTokenData)
+			if err != nil {
+				return err
+			}
+			msg := types.NewMsgEditNFT(
+				args[1],
+				args[0],
+				tokenName,
+				tokenURI,
+				tokenData,
+				clientCtx.GetFromAddress().String(),
+			)
+			fmt.Println("1")
+			if err := msg.ValidateBasic(); err != nil {
+				return err
+			}
+			fmt.Println("2")
+			return tx.GenerateOrBroadcastTxCLI(clientCtx, cmd.Flags(), msg)
+		},
+	}
+	cmd.Flags().AddFlagSet(FsEditNFT)
 	flags.AddTxFlagsToCmd(cmd)
 
 	return cmd

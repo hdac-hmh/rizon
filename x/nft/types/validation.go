@@ -2,9 +2,14 @@ package types
 
 import (
 	"fmt"
-	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	"regexp"
 	"strings"
+
+	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
+
+	// TODO:
+	// pickup from irismod token module
+	"github.com/irisnet/irismod/modules/token/types"
 )
 
 const (
@@ -55,6 +60,11 @@ func ValidateTokenURI(tokenURI string) error {
 		return sdkerrors.Wrapf(ErrInvalidTokenURI, "the length of the nft uri(%s) only accepts value [0, %d]", tokenURI, MaxTokenURILen)
 	}
 	return nil
+}
+
+// Modified returns whether the field is modified
+func Modified(target string) bool {
+	return target != types.DoNotModify
 }
 
 // ValidateKeywords checks if the given denomId begins with `DenomKeywords`

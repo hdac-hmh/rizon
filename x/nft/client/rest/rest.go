@@ -39,3 +39,11 @@ type mintNFTReq struct {
 	URI       string       `json:"uri"`
 	Data      string       `json:"data"`
 }
+
+type editNFTReq struct {
+	BaseReq rest.BaseReq `json:"base_req"`
+	Owner   string       `json:"owner"`
+	Name    string       `json:"name"`
+	URI     string       `json:"uri"`
+	Data    string       `json:"data"`
+}

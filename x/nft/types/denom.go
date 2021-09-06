@@ -11,7 +11,7 @@ func NewDenom(id, name, schema, symbol string, creator sdk.AccAddress, mintRestr
 		Name:             name,
 		Schema:           schema,
 		Creator:          creator.String(),
-		Symbol: 		  symbol,
+		Symbol:           symbol,
 		MintRestricted:   mintRestricted,
 		UpdateRestricted: updateRestricted,
 	}

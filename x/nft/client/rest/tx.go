@@ -1,12 +1,16 @@
 package rest
 
 import (
+	"fmt"
+	"net/http"
+
+	"github.com/gorilla/mux"
+
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/tx"
 	"github.com/cosmos/cosmos-sdk/types/rest"
-	"github.com/gorilla/mux"
+
 	"github.com/rizon-world/rizon/x/nft/types"
-	"net/http"
 )
 
 func registerTxRoutes(cliCtx client.Context, r *mux.Router, queryRoute string) {
@@ -14,6 +18,8 @@ func registerTxRoutes(cliCtx client.Context, r *mux.Router, queryRoute string) {
 	r.HandleFunc("/nft/nfts/denoms/issue", issueDenomHandlerFn(cliCtx)).Methods("POST")
 	// Mint an NFT
 	r.HandleFunc("/nft/nfts/mint", mintNFTHandlerFn(cliCtx)).Methods("POST")
+	// Update an NFT
+	r.HandleFunc(fmt.Sprintf("/nft/nfts/{%s}/{%s}", RestParamDenomID, RestParamTokenID), editNFTHandlerFn(cliCtx)).Methods("PUT")
 }
 
 func issueDenomHandlerFn(cliCtx client.Context) http.HandlerFunc {
@@ -62,6 +68,35 @@ func mintNFTHandlerFn(cliCtx client.Context) http.HandlerFunc {
 			req.Data,
 			req.Owner,
 			req.Recipient,
+		)
+		if err := msg.ValidateBasic(); err != nil {
+			rest.WriteErrorResponse(w, http.StatusBadRequest, err.Error())
+			return
+		}
+		tx.WriteGeneratedTxResponse(cliCtx, w, req.BaseReq, msg)
+	}
+}
+
+func editNFTHandlerFn(cliCtx client.Context) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		var req editNFTReq
+		if !rest.ReadRESTReq(w, r, cliCtx.LegacyAmino, &req) {
+			rest.WriteErrorResponse(w, http.StatusBadRequest, "failed to parse request")
+			return
+		}
+		baseReq := req.BaseReq.Sanitize()
+		if !baseReq.ValidateBasic(w) {
+			return
+		}
+
+		vars := mux.Vars(r)
+		// create the message
+		msg := types.NewMsgEditNFT(
+			vars[RestParamTokenID],
+			vars[RestParamDenomID],
+			req.Name,
+			req.URI,
+			req.Data, req.Owner,
 		)
 		if err := msg.ValidateBasic(); err != nil {
 			rest.WriteErrorResponse(w, http.StatusBadRequest, err.Error())

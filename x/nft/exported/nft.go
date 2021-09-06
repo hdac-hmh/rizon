@@ -10,4 +10,3 @@ type NFT interface {
 	GetURI() string
 	GetData() string
 }
-

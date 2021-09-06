@@ -3,8 +3,8 @@ package types
 import sdk "github.com/cosmos/cosmos-sdk/types"
 
 const (
-	QuerySupply			= "supply"
-	QueryNFT            = "nft"
+	QuerySupply = "supply"
+	QueryNFT    = "nft"
 )
 
 // QuerySupplyParams defines the params for queries:

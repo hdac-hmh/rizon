@@ -2,17 +2,18 @@ package types
 
 import (
 	gogotypes "github.com/gogo/protobuf/types"
-	"github.com/rizon-world/rizon/x/nft/exported"
 
 	"github.com/cosmos/cosmos-sdk/codec"
 	"github.com/cosmos/cosmos-sdk/codec/types"
 	cryptocodec "github.com/cosmos/cosmos-sdk/crypto/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/msgservice"
+
+	"github.com/rizon-world/rizon/x/nft/exported"
 )
 
 var (
-	amino	  = codec.NewLegacyAmino()
+	amino     = codec.NewLegacyAmino()
 	ModuleCdc = codec.NewAminoCodec(amino)
 )
 
@@ -25,6 +26,7 @@ func init() {
 // RegisterLegacyAminoCodec concrete types on codec
 func RegisterLegacyAminoCodec(cdc *codec.LegacyAmino) {
 	cdc.RegisterConcrete(&MsgIssueDenom{}, "rizon/nft/MsgIssueDenom", nil)
+	cdc.RegisterConcrete(&MsgEditNFT{}, "rizon/nft/MsgEditNFT", nil)
 	cdc.RegisterConcrete(&MsgMintNFT{}, "rizon/nft/MsgMintNFT", nil)
 
 	cdc.RegisterInterface((*exported.NFT)(nil), nil)
@@ -35,6 +37,7 @@ func RegisterInterfaces(registry types.InterfaceRegistry) {
 	registry.RegisterImplementations((*sdk.Msg)(nil),
 		&MsgIssueDenom{},
 		&MsgMintNFT{},
+		&MsgEditNFT{},
 	)
 
 	registry.RegisterImplementations((*exported.NFT)(nil),

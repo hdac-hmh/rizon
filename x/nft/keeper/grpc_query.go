@@ -33,10 +33,12 @@ func (k Keeper) Supply(c context.Context, request *types.QuerySupplyRequest) (*t
 func (k Keeper) Owner(c context.Context, request *types.QueryOwnerRequest) (*types.QueryOwnerResponse, error) {
 	return &types.QueryOwnerResponse{}, nil
 }
+
 // Collection queries the NFTs of the specified denom
 func (k Keeper) Collection(c context.Context, request *types.QueryCollectionRequest) (*types.QueryCollectionResponse, error) {
 	return &types.QueryCollectionResponse{}, nil
 }
+
 // Denom queries the definition of a given denom
 func (k Keeper) Denom(c context.Context, request *types.QueryDenomRequest) (*types.QueryDenomResponse, error) {
 	ctx := sdk.UnwrapSDKContext(c)
@@ -88,4 +90,3 @@ func (k Keeper) NFT(c context.Context, request *types.QueryNFTRequest) (*types.Q
 
 	return &types.QueryNFTResponse{NFT: &baseNFT}, nil
 }
-

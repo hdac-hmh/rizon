@@ -7,27 +7,29 @@ import (
 
 // constant used to indicate that some field should not be updated
 const (
-	TypeMsgIssueDenom	 = "issue_denom"
-	TypeMsgTransferNFT	 = "transfer_nft"
-	TypeMsgEditNFT		 = "edit_nft"
-	TypeMsgMintNFT		 = "mint_nft"
-	TypeMsgBurnNFT		 = "burn_nft"
+	TypeMsgIssueDenom    = "issue_denom"
+	TypeMsgTransferNFT   = "transfer_nft"
+	TypeMsgEditNFT       = "edit_nft"
+	TypeMsgMintNFT       = "mint_nft"
+	TypeMsgBurnNFT       = "burn_nft"
 	TypeMsgTransferDenom = "transfer_denom"
 )
 
 var (
 	_ sdk.Msg = &MsgIssueDenom{}
+	_ sdk.Msg = &MsgEditNFT{}
+	_ sdk.Msg = &MsgMintNFT{}
 )
 
 // NewMsgIssueDenom is a constructor function for MsgSetName
 func NewMsgIssueDenom(denomID, denomName, schema, sender, symbol string, mintRestricted, updateRestricted bool) *MsgIssueDenom {
 	return &MsgIssueDenom{
-		Sender:			  sender,
-		Id:				  denomID,
-		Name:			  denomName,
-		Schema:			  schema,
-		Symbol:			  symbol,
-		MintRestricted:	  mintRestricted,
+		Sender:           sender,
+		Id:               denomID,
+		Name:             denomName,
+		Schema:           schema,
+		Symbol:           symbol,
+		MintRestricted:   mintRestricted,
 		UpdateRestricted: updateRestricted,
 	}
 }
@@ -85,26 +87,57 @@ func (msg MsgIssueDenom) GetSigners() []sdk.AccAddress {
 //func (msg MsgTransferNFT) ValidateBasic() error {}
 //func (msg MsgTransferNFT) GetSignBytes() []byte {}
 //func (msg MsgTransferNFT) GetSigners() []sdk.AccAddress {}
-//
-//// NewMsgEditNFT is a constructor function for MsgSetName
-//func NewMsgEditNFT(
-//	tokenID, denomID, tokenName, tokenURI, tokenData, sender string,
-//	) *MsgEditNFT {
-//	return &MsgEditNFT{
-//		Id:			tokenID,
-//		DenomId:	denomID,
-//		Name:		tokenName,
-//		URI:		tokenURI,
-//		Data:		tokenData,
-//		Sender:		sender,
-//	}
-//}
-//
-//func (msg NewMsgEditNFT) Route() string {}
-//func (msg NewMsgEditNFT) Type() string {}
-//func (msg NewMsgEditNFT) ValidateBasic() error {}
-//func (msg NewMsgEditNFT) GetSignBytes() []byte {}
-//func (msg NewMsgEditNFT) GetSigners() []sdk.AccAddress {}
+
+// NewMsgEditNFT is a constructor function for MsgSetName
+func NewMsgEditNFT(
+	tokenID, denomID, tokenName, tokenURI, tokenData, sender string,
+) *MsgEditNFT {
+	return &MsgEditNFT{
+		Id:      tokenID,
+		DenomId: denomID,
+		Name:    tokenName,
+		URI:     tokenURI,
+		Data:    tokenData,
+		Sender:  sender,
+	}
+}
+
+// Route Implements Msg
+func (msg MsgEditNFT) Route() string { return RouterKey }
+
+// Type Implements Msg
+func (msg MsgEditNFT) Type() string { return TypeMsgEditNFT }
+
+// ValidateBasic Implements Msg
+func (msg MsgEditNFT) ValidateBasic() error {
+	if _, err := sdk.AccAddressFromBech32(msg.Sender); err != nil {
+		return sdkerrors.Wrapf(sdkerrors.ErrInvalidAddress, "invalid sender address (%s)", err)
+	}
+
+	if err := ValidateDenomID(msg.DenomId); err != nil {
+		return err
+	}
+
+	if err := ValidateTokenURI(msg.URI); err != nil {
+		return err
+	}
+	return ValidateTokenID(msg.Id)
+}
+
+// GetSignBytes Implements Msg
+func (msg MsgEditNFT) GetSignBytes() []byte {
+	bz := ModuleCdc.MustMarshalJSON(&msg)
+	return sdk.MustSortJSON(bz)
+}
+
+// GetSigners Implements Msg
+func (msg MsgEditNFT) GetSigners() []sdk.AccAddress {
+	from, err := sdk.AccAddressFromBech32(msg.Sender)
+	if err != nil {
+		panic(err)
+	}
+	return []sdk.AccAddress{from}
+}
 
 // NewMsgMintNFT is a constructor function for MsgMintNFT
 func NewMsgMintNFT(
