@@ -64,3 +64,9 @@ func (k Keeper) setNFT(ctx sdk.Context, denomID string, nft types.BaseNFT) {
 	bz := k.cdc.MustMarshalBinaryBare(&nft)
 	store.Set(types.KeyNFT(denomID, nft.GetID()), bz)
 }
+
+// deleteNFT deletes an existing NFT from store
+func (k Keeper) deleteNFT(ctx sdk.Context, denomID string, nft exported.NFT) {
+	store := ctx.KVStore(k.storeKey)
+	store.Delete(types.KeyNFT(denomID, nft.GetID()))
+}

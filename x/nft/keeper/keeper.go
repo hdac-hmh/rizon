@@ -137,3 +137,21 @@ func (k Keeper) TransferOwner(
 	k.swapOwner(ctx, denomID, tokenID, srcOwner, dstOwner)
 	return nil
 }
+
+// BurnNFT deletes a specified NFT
+func (k Keeper) BurnNFT(ctx sdk.Context, denomID, tokenID string, owner sdk.AccAddress) error {
+	if !k.HasDenomID(ctx, denomID) {
+		return sdkerrors.Wrapf(types.ErrInvalidDenom, "denom ID %s not exists", denomID)
+	}
+
+	nft, err := k.Authorize(ctx, denomID, tokenID, owner)
+	if err != nil {
+		return err
+	}
+
+	k.deleteNFT(ctx, denomID, nft)
+	k.deleteOwner(ctx, denomID, tokenID, owner)
+	k.decreaseSupply(ctx, denomID)
+
+	return nil
+}
