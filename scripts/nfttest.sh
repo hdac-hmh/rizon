@@ -63,6 +63,14 @@ do_burn()
   echo "y" | rizond tx nft burn $denom_id $nft_id --from=my_key --chain-id=my_testnet --fees=10stake --keyring-backend test
 }
 
+do_transferdenom()
+{
+  recipient=$1
+  denom_id=$2
+  sender=$3
+  echo "y" | rizond tx nft transfer-denom $recipient $denom_id --from=$sender --chain-id=my_testnet --fees=10stake --keyring-backend test
+}
+
 do_test()
 {
 	cmd=$1
@@ -82,6 +90,8 @@ do_test()
     do_transfer $2 $3 $4 $5
   elif [ $cmd == "burn" ]; then
     do_burn $2 $3
+  elif [ $cmd == "transferdenom" ]; then
+    do_transferdenom $2 $3 $4
   else
     echo "Unknown Command $cmd"
 	fi
@@ -96,6 +106,7 @@ if [ $# -le 1 ]; then
 	echo "Usage: $0 edit [denom-id] [nft-id] [uri]"
 	echo "Usage: $0 transfer [denom-id] [nft-id] [recipient] [sender]"
 	echo "Usage: $0 burn [denom-id] [nft-id]"
+	echo "Usage: $0 transferdenom [recipient] [denom-id] [sender]"
 	exit -1
 elif [ $# -eq 2 ]; then
   do_test $1 $2
