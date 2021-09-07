@@ -6,10 +6,6 @@ import (
 	"strings"
 
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
-
-	// TODO:
-	// pickup from irismod token module
-	"github.com/irisnet/irismod/modules/token/types"
 )
 
 const (
@@ -68,7 +64,7 @@ func ValidateTokenURI(tokenURI string) error {
 
 // Modified returns whether the field is modified
 func Modified(target string) bool {
-	return target != types.DoNotModify
+	return target != DoNotModify
 }
 
 // ValidateKeywords checks if the given denomId begins with `DenomKeywords`
