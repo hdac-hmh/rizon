@@ -9,6 +9,7 @@ const (
 	FlagTokenURI  = "uri"
 	FlagTokenData = "data"
 	FlagRecipient = "recipient"
+	FlagOwner     = "owner"
 
 	FlagDenomName        = "name"
 	FlagDenomID          = "denom-id"
@@ -23,6 +24,8 @@ var (
 	FsMintNFT       = flag.NewFlagSet("", flag.ContinueOnError)
 	FsEditNFT       = flag.NewFlagSet("", flag.ContinueOnError)
 	FsTransferNFT   = flag.NewFlagSet("", flag.ContinueOnError)
+	FsQuerySupply   = flag.NewFlagSet("", flag.ContinueOnError)
+	FsQueryOwner    = flag.NewFlagSet("", flag.ContinueOnError)
 	FsTransferDenom = flag.NewFlagSet("", flag.ContinueOnError)
 )
 
@@ -45,4 +48,8 @@ func init() {
 	FsTransferNFT.String(FlagTokenURI, "[do-not-modify]", "URI for the supplemental off-chain token data (should return a JSON object)")
 	FsTransferNFT.String(FlagTokenData, "[do-not-modify]", "The token data of the nft")
 	FsTransferNFT.String(FlagTokenName, "[do-not-modify]", "The name of the nft")
+
+	FsQuerySupply.String(FlagOwner, "", "The owner of the nft")
+
+	FsQueryOwner.String(FlagDenomID, "", "The name of the collection")
 }

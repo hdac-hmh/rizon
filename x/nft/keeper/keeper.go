@@ -1,6 +1,10 @@
 package keeper
 
 import (
+	"fmt"
+
+	"github.com/tendermint/tendermint/libs/log"
+
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
@@ -20,6 +24,11 @@ func NewKeeper(cdc codec.Marshaler, storeKey sdk.StoreKey) Keeper {
 		storeKey: storeKey,
 		cdc:      cdc,
 	}
+}
+
+// Logger returns a module-specific logger.
+func (k Keeper) Logger(ctx sdk.Context) log.Logger {
+	return ctx.Logger().With("module", fmt.Sprintf("irismod/%s", types.ModuleName))
 }
 
 // IssueDenom issues a denom according to the given params
@@ -72,7 +81,7 @@ func (k Keeper) EditNFT(
 ) error {
 	denom, found := k.GetDenom(ctx, denomID)
 	if !found {
-		return sdkerrors.Wrapf(types.ErrInvalidDenom, "denom ID %s not exits", denomID)
+		return sdkerrors.Wrapf(types.ErrInvalidDenom, "denom ID %s not exists", denomID)
 	}
 
 	if denom.UpdateRestricted {
@@ -80,7 +89,7 @@ func (k Keeper) EditNFT(
 		return sdkerrors.Wrapf(sdkerrors.ErrUnauthorized, "nobody can update the NFT under this denom %s", denom.Id)
 	}
 
-	// jst the owner of NFT can edit
+	// just the owner of NFT can edit
 	nft, err := k.Authorize(ctx, denomID, tokenID, owner)
 	if err != nil {
 		return err
@@ -110,7 +119,7 @@ func (k Keeper) TransferOwner(
 ) error {
 	denom, found := k.GetDenom(ctx, denomID)
 	if !found {
-		return sdkerrors.Wrapf(types.ErrInvalidDenom, "denom ID %s not exits", denomID)
+		return sdkerrors.Wrapf(types.ErrInvalidDenom, "denom ID %s not exists", denomID)
 	}
 
 	nft, err := k.Authorize(ctx, denomID, tokenID, srcOwner)
@@ -121,7 +130,7 @@ func (k Keeper) TransferOwner(
 	nft.Owner = dstOwner.String()
 
 	if denom.UpdateRestricted && (types.Modified(tokenNm) || types.Modified(tokenURI) || types.Modified(tokenData)) {
-		return sdkerrors.Wrapf(sdkerrors.ErrUnauthorized, "Is is restricted to update NFT under this denom %s", denom.Id)
+		return sdkerrors.Wrapf(sdkerrors.ErrUnauthorized, "It is restricted to update NFT under this denom %s", denom.Id)
 	}
 
 	if types.Modified(tokenNm) {

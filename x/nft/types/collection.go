@@ -16,3 +16,12 @@ func (c Collection) AddNFT(nft BaseNFT) Collection {
 	c.NFTs = append(c.NFTs, nft)
 	return c
 }
+
+func (c Collection) Supply() int {
+	return len(c.NFTs)
+}
+
+// NewCollection creates a new NFT Collection
+func NewCollections(c ...Collection) []Collection {
+	return append([]Collection{}, c...)
+}
