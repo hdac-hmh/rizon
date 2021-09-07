@@ -56,3 +56,8 @@ type transferNFTReq struct {
 	URI       string       `json:"uri"`
 	Data      string       `json:"data"`
 }
+
+type burnNFTReq struct {
+	BaseReq rest.BaseReq `json:"base_req"`
+	Owner   string       `json:"owner"`
+}

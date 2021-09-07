@@ -222,3 +222,44 @@ func (msg MsgMintNFT) GetSigners() []sdk.AccAddress {
 	}
 	return []sdk.AccAddress{from}
 }
+
+// NewMsgBurnNFT is a constructor function for MsgBurnNFT
+func NewMsgBurnNFT(sender, tokenID, denomID string) *MsgBurnNFT {
+	return &MsgBurnNFT{
+		Sender:  sender,
+		Id:      tokenID,
+		DenomId: denomID,
+	}
+}
+
+// Route Implements Msg
+func (msg MsgBurnNFT) Route() string { return RouterKey }
+
+// Type Implements Msg
+func (msg MsgBurnNFT) Type() string { return TypeMsgBurnNFT }
+
+// ValidateBasic Implements Msg.
+func (msg MsgBurnNFT) ValidateBasic() error {
+	if _, err := sdk.AccAddressFromBech32(msg.Sender); err != nil {
+		return sdkerrors.Wrapf(sdkerrors.ErrInvalidAddress, "invalid sender address (%s)", err)
+	}
+	if err := ValidateDenomID(msg.DenomId); err != nil {
+		return err
+	}
+	return ValidateTokenID(msg.Id)
+}
+
+// GetSignBytes Implements Msg.
+func (msg MsgBurnNFT) GetSignBytes() []byte {
+	bz := ModuleCdc.MustMarshalJSON(&msg)
+	return sdk.MustSortJSON(bz)
+}
+
+// GetSigners Implements Msg.
+func (msg MsgBurnNFT) GetSigners() []sdk.AccAddress {
+	from, err := sdk.AccAddressFromBech32(msg.Sender)
+	if err != nil {
+		panic(err)
+	}
+	return []sdk.AccAddress{from}
+}

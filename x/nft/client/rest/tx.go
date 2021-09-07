@@ -23,7 +23,8 @@ func registerTxRoutes(cliCtx client.Context, r *mux.Router, queryRoute string) {
 	r.HandleFunc(fmt.Sprintf("/nft/nfts/{%s}/{%s}", RestParamDenomID, RestParamTokenID), editNFTHandlerFn(cliCtx)).Methods("PUT")
 	// Transfer an NFT to an address
 	r.HandleFunc(fmt.Sprintf("/nft/nfts/{%s}/{%s}/transfer", RestParamDenomID, RestParamTokenID), transferNFTHandlerFn(cliCtx)).Methods("POST")
-
+	// Burn an NFT
+	r.HandleFunc(fmt.Sprintf("/nft/nfts/{%s}/{%s}/burn", RestParamDenomID, RestParamTokenID), burnNFTHandlerFn(cliCtx)).Methods("POST")
 }
 
 func issueDenomHandlerFn(cliCtx client.Context) http.HandlerFunc {
@@ -136,6 +137,33 @@ func transferNFTHandlerFn(cliCtx client.Context) http.HandlerFunc {
 			req.Data,
 			req.Owner,
 			req.Recipient,
+		)
+		if err := msg.ValidateBasic(); err != nil {
+			rest.WriteErrorResponse(w, http.StatusBadRequest, err.Error())
+			return
+		}
+		tx.WriteGeneratedTxResponse(cliCtx, w, req.BaseReq, msg)
+	}
+}
+
+func burnNFTHandlerFn(cliCtx client.Context) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		var req burnNFTReq
+		if !rest.ReadRESTReq(w, r, cliCtx.LegacyAmino, &req) {
+			rest.WriteErrorResponse(w, http.StatusBadRequest, "failed to parse request")
+			return
+		}
+		baseReq := req.BaseReq.Sanitize()
+		if !baseReq.ValidateBasic(w) {
+			return
+		}
+		vars := mux.Vars(r)
+
+		// create the message
+		msg := types.NewMsgBurnNFT(
+			req.Owner,
+			vars[RestParamTokenID],
+			vars[RestParamDenomID],
 		)
 		if err := msg.ValidateBasic(); err != nil {
 			rest.WriteErrorResponse(w, http.StatusBadRequest, err.Error())

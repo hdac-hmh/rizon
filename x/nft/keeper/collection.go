@@ -62,3 +62,17 @@ func (k Keeper) increaseSupply(ctx sdk.Context, denomID string) {
 	bz := types.MustMarshalSupply(k.cdc, supply)
 	store.Set(types.KeyCollection(denomID), bz)
 }
+
+func (k Keeper) decreaseSupply(ctx sdk.Context, denomID string) {
+	supply := k.GetTotalSupply(ctx, denomID)
+	supply--
+
+	store := ctx.KVStore(k.storeKey)
+	if supply == 0 {
+		store.Delete(types.KeyCollection(denomID))
+		return
+	}
+
+	bz := types.MustMarshalSupply(k.cdc, supply)
+	store.Set(types.KeyCollection(denomID), bz)
+}
