@@ -9,7 +9,7 @@ func NewGenesisState(collections []Collection) *GenesisState {
 	}
 }
 
-// ValidateGenesis performs basic validation of nfts genesis data returning
+// ValidateGenesis performs basic validation of nfts genesis data returning an
 // error for any failed validation criteria.
 func ValidateGenesis(data GenesisState) error {
 	for _, c := range data.Collections {
@@ -19,7 +19,7 @@ func ValidateGenesis(data GenesisState) error {
 
 		for _, nft := range c.NFTs {
 			if nft.GetOwner().Empty() {
-				return sdkerrors.Wrapf(sdkerrors.ErrInvalidAddress, "missing owner")
+				return sdkerrors.Wrap(sdkerrors.ErrInvalidAddress, "missing owner")
 			}
 
 			if err := ValidateTokenID(nft.GetID()); err != nil {

@@ -221,11 +221,9 @@ func GetCmdEditNFT() *cobra.Command {
 				tokenData,
 				clientCtx.GetFromAddress().String(),
 			)
-			fmt.Println("1")
 			if err := msg.ValidateBasic(); err != nil {
 				return err
 			}
-			fmt.Println("2")
 			return tx.GenerateOrBroadcastTxCLI(clientCtx, cmd.Flags(), msg)
 		},
 	}
@@ -241,7 +239,7 @@ func GetCmdTransferNFT() *cobra.Command {
 		Use:  "transfer [recipient] [denom-id] [nft-id]",
 		Long: "Transfer an NFT to a recipient.",
 		Example: fmt.Sprintf(
-			"$ %s nft transfer <recipient> <denom-id> <nft-id> "+
+			"$ %s tx nft transfer <recipient> <denom-id> <nft-id> "+
 				"--uri=<uri> "+
 				"--from=<key-name> "+
 				"--chain-id=<chain-id> "+
@@ -292,7 +290,7 @@ func GetCmdTransferNFT() *cobra.Command {
 	return cmd
 }
 
-// GetCmdBurnNFT is the CLI command for sending a BurnNFT transacation
+// GetCmdBurnNFT is the CLI command for sending a BurnNFT transaction
 func GetCmdBurnNFT() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:  "burn [denom-id] [nft-id]",
